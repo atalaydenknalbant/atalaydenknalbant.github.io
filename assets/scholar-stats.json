@@ -1,0 +1,21 @@
+{
+  "updatedAt": "2026-05-30T16:39:35.900Z",
+  "source": "serpapi_google_scholar_author",
+  "paperCount": 2,
+  "papers": [
+    {
+      "title": "Reinforcement Learning Approach to Instance Segmentation Using Double DQN",
+      "year": "2025",
+      "publication": "2025 Innovations in Intelligent Systems and Applications Conference (ASYU), 1-6, 2025",
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=Mkpm2noAAAAJ&citation_for_view=Mkpm2noAAAAJ:qjMakFHDy7sC",
+      "citationId": "Mkpm2noAAAAJ:qjMakFHDy7sC"
+    },
+    {
+      "title": "Advanced Computer Vision Techniques for Reliable Gender Determination in Budgerigars (Melopsittacus Undulatus)",
+      "year": "2024",
+      "publication": "2024 9th International Conference on Computer Science and Engineering (UBMK ..., 2024",
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=Mkpm2noAAAAJ&citation_for_view=Mkpm2noAAAAJ:u5HHmVD_uO8C",
+      "citationId": "Mkpm2noAAAAJ:u5HHmVD_uO8C"
+    }
+  ]
+}

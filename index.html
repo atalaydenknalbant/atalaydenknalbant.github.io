@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Portfolio of Atalay Denknalbant, Data Scientist and AI Engineer focused on computer vision, machine learning systems, OCR, datasets, and applied research.">
+  <meta name="theme-color" content="#0b0f14">
+  <meta property="og:title" content="Atalay Denknalbant | Data Scientist">
+  <meta property="og:description" content="Computer vision, applied ML, data products, OCR, and research work.">
+  <meta property="og:type" content="website">
+  <title>Atalay Denknalbant | Data Scientist</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas id="signal-canvas" aria-hidden="true"></canvas>
+  <header class="site-header" data-elevated="false">
+    <nav class="nav-shell" aria-label="Primary navigation">
+      <a class="brand-lockup" href="#top" aria-label="Atalay Denknalbant home">
+        <span class="brand-copy">
+          <span>Atalay Denknalbant</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+        <span></span>
+        <span></span>
+      </button>
+      <div class="nav-links" id="site-menu">
+        <a href="#work">Work</a>
+        <a href="#publications">Publications</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero-section" id="top" aria-labelledby="hero-title">
+      <div class="hero-grid">
+        <aside class="hero-identity" aria-label="Atalay Denknalbant identity">
+          <div class="identity-orbit" aria-hidden="true">
+            <div class="signal-core portrait-core">
+              <img src="assets/hero-portrait.png" width="800" height="800" alt="">
+            </div>
+            <div class="orbit-labels">
+              <span class="orbit-label orbit-ai">AI</span>
+              <span class="orbit-label orbit-cv">CV</span>
+              <span class="orbit-label orbit-ml">ML</span>
+            </div>
+            <span class="scan-ring one"></span>
+            <span class="scan-ring two"></span>
+            <span class="system-node node-one"></span>
+            <span class="system-node node-two"></span>
+            <span class="system-node node-three"></span>
+            <span class="detection-frame frame-one"></span>
+            <span class="detection-frame frame-two"></span>
+            <span class="data-stream stream-one"></span>
+            <span class="data-stream stream-two"></span>
+            <span class="data-stream stream-three"></span>
+          </div>
+          <h1 id="hero-title">Atalay Denknalbant</h1>
+          <p class="hero-title-line">Data Scientist, MSc</p>
+          <div class="status-board" aria-label="Contact links">
+            <div class="signal-contact" id="contact">
+              <a href="mailto:atalaydenknalbant@hotmail.com" aria-label="Email" title="Email">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16v12H4z"></path>
+                  <path d="m4 7 8 6 8-6"></path>
+                </svg>
+              </a>
+              <a href="https://github.com/atalaydenknalbant" target="_blank" rel="noreferrer" aria-label="GitHub" title="GitHub">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2C6.475 2 2 6.475 2 12C2 16.425 4.8625 20.1625 8.8375 21.4875C9.3375 21.575 9.525 21.275 9.525 21.0125C9.525 20.775 9.5125 19.9875 9.5125 19.15C7 19.6125 6.35 18.5375 6.15 17.975C6.0375 17.6875 5.55 16.8 5.125 16.5625C4.775 16.375 4.275 15.9125 5.1125 15.9C5.9 15.8875 6.4625 16.625 6.65 16.925C7.55 18.4375 8.9875 18.0125 9.5625 17.75C9.65 17.1 9.9125 16.6625 10.2 16.4125C7.975 16.1625 5.65 15.3 5.65 11.475C5.65 10.3875 6.0375 9.4875 6.675 8.7875C6.575 8.5375 6.225 7.5125 6.775 6.1375C6.775 6.1375 7.6125 5.875 9.525 7.1625C10.325 6.9375 11.175 6.825 12.025 6.825C12.875 6.825 13.725 6.9375 14.525 7.1625C16.4375 5.8625 17.275 6.1375 17.275 6.1375C17.825 7.5125 17.475 8.5375 17.375 8.7875C18.0125 9.4875 18.4 10.375 18.4 11.475C18.4 15.3125 16.0625 16.1625 13.8375 16.4125C14.2 16.725 14.5125 17.325 14.5125 18.2625C14.5125 19.6 14.5 20.675 14.5 21.0125C14.5 21.275 14.6875 21.5875 15.1875 21.4875C17.1727 20.8173 18.8977 19.5415 20.1198 17.8395C21.3419 16.1376 21.9995 14.0953 22 12C22 6.475 17.525 2 12 2Z"></path>
+                </svg>
+              </a>
+              <a href="https://www.linkedin.com/in/atalaydenknalbant/" target="_blank" rel="noreferrer" aria-label="LinkedIn" title="LinkedIn">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 9h3.2v10H5z"></path>
+                  <path d="M6.6 5a1.8 1.8 0 1 0 0 3.6A1.8 1.8 0 0 0 6.6 5z"></path>
+                  <path d="M11 9h3v1.4c.5-.8 1.4-1.6 3-1.6 2.2 0 3.8 1.4 3.8 4.5V19h-3.2v-5c0-1.4-.5-2.3-1.7-2.3-1 0-1.5.6-1.8 1.2-.1.2-.1.5-.1.8V19H11z"></path>
+                </svg>
+              </a>
+              <a href="https://scholar.google.com/citations?user=Mkpm2noAAAAJ&hl=en" target="_blank" rel="noreferrer" aria-label="Google Scholar" title="Google Scholar">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3 3 8l9 5 9-5z"></path>
+                  <path d="M7 11v4.3c0 1.5 2.2 2.7 5 2.7s5-1.2 5-2.7V11"></path>
+                </svg>
+              </a>
+              <a href="https://huggingface.co/atalaydenknalbant" target="_blank" rel="noreferrer" aria-label="Hugging Face" title="Hugging Face">
+                <svg class="brand-fill-icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <g transform="scale(0.02)">
+                    <path d="M246 251 203 305 172 357 148 412 131 470 121 536 120 601 127 661 144 726 112 725 90 733 71 750 59 775 58 803 69 830 52 849 43 874 44 900 56 925 46 945 44 967 51 990 68 1011 104 1037 174 1067 251 1089 314 1099 369 1102 439 1095 475 1082 500 1065 516 1048 576 1055 624 1055 678 1049 706 1074 735 1089 765 1097 830 1102 910 1095 993 1076 1086 1039 1107 1026 1134 1003 1143 990 1150 967 1148 945 1138 925 1145 914 1151 895 1151 874 1147 859 1138 843 1125 830 1136 802 1135 775 1126 754 1104 733 1082 725 1055 725 1072 661 1079 601 1077 525 1063 450 1038 380 1002 314 962 261 907 207 845 163 806 142 763 124 725 112 673 101 625 96 574 96 526 101 478 111 439 123 389 144 319 186 285 213Z M566 144 644 145 724 161 768 177 807 196 850 223 883 249 936 304 979 368 998 407 1016 458 1026 502 1031 542 1031 607 1020 673 995 659 969 657 949 663 923 677 904 694 892 711 869 688 841 678 822 678 805 683 791 691 776 706 741 778 723 808 671 868 650 902 642 926 639 955 642 978 651 1003 639 1006 573 1007 543 1003 552 978 555 953 552 926 544 902 523 868 492 835 465 799 423 714 410 697 397 687 381 680 352 678 325 688 302 711 290 694 275 680 234 659 208 657 191 662 178 670 168 609 167 561 170 522 186 448 201 407 220 368 245 328 268 298 328 239 392 196 431 177 482 159 526 149Z M1086 780 1089 796 1077 814 932 910 929 916 932 927 944 932 1048 877 1078 865 1087 864 1095 867 1103 877 1104 888 1100 897 1091 906 1064 922 988 952 966 970 966 981 973 986 981 987 1062 949 1080 944 1088 945 1101 955 1102 965 1090 979 1071 993 1016 1018 953 1038 898 1049 847 1054 789 1052 752 1045 726 1030 703 1003 692 980 687 961 687 944 692 925 708 898 739 865 768 826 813 736 821 728 828 725 843 728 852 738 859 760 858 782 850 801 817 835 810 850 810 859 816 867 834 869 847 863 855 854 923 749 945 720 975 704 985 706 992 714 994 739 988 754 886 869 888 879 898 885 910 879 937 855 1036 782 1065 772 1078 773Z M108 780 116 773 129 772 158 782 261 858 288 882 296 885 306 879 306 866 206 754 200 740 201 716 209 706 218 704 239 713 251 722 338 853 348 864 360 869 373 869 379 866 384 858 383 846 376 834 344 801 336 782 335 760 340 742 351 728 359 725 371 727 382 738 412 802 431 834 454 864 485 897 502 925 507 945 507 960 502 980 491 1003 468 1030 442 1045 405 1052 347 1054 296 1049 237 1037 173 1016 123 993 98 974 92 965 93 955 106 945 119 945 147 955 208 986 225 984 228 981 228 970 206 952 130 922 103 906 94 897 90 888 91 877 100 866 116 865 146 877 191 899 246 931 260 929 265 916 263 911 118 815 105 796Z M436 584 438 617 447 652 459 678 476 703 495 722 516 737 548 751 585 758 615 758 648 752 680 739 706 721 727 699 748 664 759 631 764 594 760 576 749 573 651 615 622 621 587 622 536 611 455 574 441 575Z M725 376 710 389 698 412 696 438 702 457 707 462 715 463 742 455 751 456 777 484 784 486 792 483 812 464 821 445 820 421 811 395 794 377 769 367 744 368Z M474 375 453 367 423 369 404 379 386 400 379 423 381 446 391 467 409 484 422 484 440 463 452 454 461 454 484 462 493 462 500 456 505 435 502 411 492 391Z M893 480 880 485 869 496 864 509 864 522 869 535 879 545 893 551 906 551 917 547 930 535 935 522 935 509 930 496 920 486 906 480Z M293 480 280 485 269 496 264 509 264 522 269 535 279 545 293 551 306 551 317 547 330 535 335 522 335 509 330 496 320 486 306 480Z"></path>
+                  </g>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </aside>
+
+        <div class="hero-copy">
+          <p class="eyebrow">Computer Vision | Applied ML | Data Products</p>
+          <h2>Hey, I'm Atalay</h2>
+          <p class="hero-lede">I'm a data scientist and applied AI researcher with an MSc in Computer Science.</p>
+          <p class="hero-lede">I build applied machine learning systems that turn raw data into models, pipelines, and usable software for prediction, automation, visual understanding, and decision support.</p>
+          <p class="hero-lede">My published work focuses on computer vision and reinforcement learning, while my project work turns messy images, text, tables, and behavior data into usable models.</p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button primary" href="#work">View Work</a>
+            <a class="button secondary" href="#publications">Publications</a>
+          </div>
+          <dl class="metric-strip" aria-label="Profile highlights">
+            <div>
+              <dt>4+</dt>
+              <dd>Years in Data Science</dd>
+            </div>
+            <div>
+              <dt><span id="githubRepoCount">33</span></dt>
+              <dd>Public GitHub repos</dd>
+            </div>
+            <div>
+              <dt><span id="hfSpaceCount">6</span></dt>
+              <dd>Hugging Face Spaces</dd>
+            </div>
+            <div>
+              <dt><span id="publishedPaperCount">2</span></dt>
+              <dd>Published Papers</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-shell focus-section" aria-labelledby="focus-title">
+      <div class="section-heading">
+        <p class="eyebrow" id="focus-title">Core Work</p>
+        <p>Applied AI work across computer vision, automation, credit risk, recommendation systems, and academic research.</p>
+      </div>
+
+      <div class="focus-grid">
+        <article class="focus-item">
+          <span class="focus-index">01</span>
+          <h3>Computer Vision</h3>
+          <p>Visual recognition systems for images and video, including object detection, segmentation, classification, custom dataset preparation, and model evaluation.</p>
+        </article>
+
+        <article class="focus-item">
+          <span class="focus-index">02</span>
+          <h3>Machine Learning Products</h3>
+          <p>Search systems, recommendation engines, scoring models, dashboards, and decision workflows built around real user needs.</p>
+        </article>
+
+        <article class="focus-item">
+          <span class="focus-index">03</span>
+          <h3>Automation and OCR</h3>
+          <p>Extract, validate, and structure information from documents, images, forms, and complex digital processes.</p>
+        </article>
+
+        <article class="focus-item">
+          <span class="focus-index">04</span>
+          <h3>Publications</h3>
+          <p>Machine learning and computer vision research with academic publications</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell work-section" id="work" aria-labelledby="work-title">
+      <div class="section-heading compact">
+        <p class="eyebrow">Selected Work</p>
+        <h2 id="work-title">Projects with inspectable code, demos, and data assets.</h2>
+      </div>
+      <div class="filter-bar" aria-label="Project filters">
+        <button class="filter-button active" type="button" data-filter="all">All</button>
+        <button class="filter-button" type="button" data-filter="vision">Vision</button>
+        <button class="filter-button" type="button" data-filter="ml">ML</button>
+        <button class="filter-button" type="button" data-filter="data">Data</button>
+        <button class="filter-button" type="button" data-filter="automation">Automation</button>
+      </div>
+      <div class="project-grid">
+        <article class="project-card" data-category="vision ml">
+          <div class="project-topline">
+            <span>Computer Vision</span>
+            <span>YOLO</span>
+          </div>
+          <h3>ASL Detector YOLO</h3>
+          <p>American Sign Language detection built with YOLO and deployed across Hugging Face and Android surfaces.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://github.com/atalaydenknalbant/ASL-Detector-yolo" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://huggingface.co/spaces/atalaydenknalbant/ASL-Detector-YOLO" target="_blank" rel="noreferrer">Space</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="vision research">
+          <div class="project-topline">
+            <span>Publication</span>
+            <span>Detection</span>
+          </div>
+          <h3>Budgerigar Gender Determination</h3>
+          <p>Computer vision work for identifying budgerigar gender through cere detection and model comparison.</p>
+          <div class="project-proof">Published in UBMK 2024 Proceedings</div>
+          <div class="project-links">
+            <a href="https://research.bau.edu.tr/en/publications/advanced-computer-vision-techniques-for-reliable-gender-determina" target="_blank" rel="noreferrer">Paper</a>
+            <a href="https://huggingface.co/spaces/atalaydenknalbant/Budgerigar_Gender_Determination" target="_blank" rel="noreferrer">Space</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="ml data">
+          <div class="project-topline">
+            <span>Product</span>
+            <span>WebGPU</span>
+          </div>
+          <h3>otoPILOT Ikinciel</h3>
+          <p>AI car search for the Turkish used car market using Qwen3, browser inference, and arabam.com crawling.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://github.com/atalaydenknalbant/otoPILOT-Ikinciel" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="ml data research">
+          <div class="project-topline">
+            <span>Credit Risk</span>
+            <span>Tabular ML</span>
+          </div>
+          <h3>Synthetic Istanbul Credit Risk</h3>
+          <p>Credit risk estimation with non financial features and a privacy preserving synthetic Istanbul dataset.</p>
+          <div class="project-proof">100,000 synthetic resident records in the study</div>
+          <div class="project-links">
+            <a href="https://arxiv.org/abs/2512.12783" target="_blank" rel="noreferrer">arXiv</a>
+            <a href="https://github.com/atalaydenknalbant/underbanked_risk_estimation" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="data">
+          <div class="project-topline">
+            <span>Civic Data</span>
+            <span>Notebook</span>
+          </div>
+          <h3>IBB Education Aid</h3>
+          <p>Data insight notebook for Istanbul Metropolitan Municipality scholarship aid data.</p>
+          <div class="project-proof">Public analysis project using IBB open data</div>
+          <div class="project-links">
+            <a href="https://github.com/atalaydenknalbant/IBB_Education_Aid" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="ml">
+          <div class="project-topline">
+            <span>Reinforcement Learning</span>
+            <span>VizDoom</span>
+          </div>
+          <h3>DoomRL Baselines</h3>
+          <p>Reinforcement learning baseline project for Doom with VizDoom and Stable Baselines 3.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://github.com/atalaydenknalbant/DoomRL_baselines" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="data">
+          <div class="project-topline">
+            <span>Analytics</span>
+            <span>Tableau</span>
+          </div>
+          <h3>National Currencies Per US Dollar</h3>
+          <p>Interactive Tableau dashboard for comparing national currency values against the US dollar.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://public.tableau.com/app/profile/atalaydenknalbant/viz/NationalCurrenciesPerUSDollar/NationalCurrenciesPerUSDollar" target="_blank" rel="noreferrer">Tableau</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="automation ml">
+          <div class="project-topline">
+            <span>OCR</span>
+            <span>Selenium</span>
+          </div>
+          <h3>Mersis Captcha Solver</h3>
+          <p>Automation pipeline for solving captchas on the MERSIS portal using Selenium and Microsoft TrOCR.</p>
+          <div class="project-proof">Used in company verification workflows</div>
+          <div class="project-links">
+            <a href="https://github.com/atalaydenknalbant/mersis_captcha_solver" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="data automation">
+          <div class="project-topline">
+            <span>Dataset</span>
+            <span>Captcha</span>
+          </div>
+          <h3>MathCaptcha10k</h3>
+          <p>Math captcha dataset and generation tooling designed for OCR experiments and captcha model training.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://huggingface.co/datasets/atalaydenknalbant/MathCaptcha10k" target="_blank" rel="noreferrer">Dataset</a>
+            <a href="https://github.com/atalaydenknalbant/MathCaptchaBatchDownloader" target="_blank" rel="noreferrer">Generator</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="data ml">
+          <div class="project-topline">
+            <span>Dataset</span>
+            <span>Games</span>
+          </div>
+          <h3>RAWG Games Dataset</h3>
+          <p>Game metadata dataset prepared for analytics, recommendation, and ranking experiments.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://huggingface.co/datasets/atalaydenknalbant/rawg-games-dataset" target="_blank" rel="noreferrer">Dataset</a>
+          </div>
+        </article>
+
+        <article class="project-card" data-category="vision ml">
+          <div class="project-topline">
+            <span>CIFAR 10</span>
+            <span>Comparison</span>
+          </div>
+          <h3>DNN vs DCNN</h3>
+          <p>Image classification experiment comparing deep neural networks and convolutional models on CIFAR 10.</p>
+          <div class="project-proof"></div>
+          <div class="project-links">
+            <a href="https://github.com/atalaydenknalbant/DNN_vs_DCNN" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell publications-section" id="publications" aria-labelledby="publications-title">
+      <div class="section-heading">
+        <p class="eyebrow" id="publications-title">Publications</p>
+      </div>
+      <div class="research-layout">
+        <article class="research-card">
+          <div class="publication-media">
+            <img src="assets/publication-budgerigar.png" alt="Budgerigar publication visual with model results">
+          </div>
+          <span>2024 | IEEE UBMK</span>
+          <h3>Advanced Computer Vision Techniques for Reliable Gender Determination in Budgerigars</h3>
+          <p>Conference paper on object detection and deep learning for budgerigar gender recognition. Published in UBMK 2024 Proceedings, pages 863 to 868.</p>
+          <a href="https://doi.org/10.1109/UBMK63289.2024.10773570" target="_blank" rel="noreferrer">DOI 10.1109/UBMK63289.2024.10773570</a>
+        </article>
+        <article class="research-card">
+          <div class="publication-media">
+            <img src="assets/publication-ddqn.png" alt="Double DQN publication visual with instance segmentation workflow">
+          </div>
+          <span>2025 | IEEE ASYU</span>
+          <h3>Reinforcement Learning Approach to Instance Segmentation Using Double DQN</h3>
+          <p>Conference paper applying reinforcement learning to instance segmentation with a Double DQN approach.</p>
+          <a href="https://doi.org/10.1109/ASYU67174.2025.11208352" target="_blank" rel="noreferrer">DOI 10.1109/ASYU67174.2025.11208352</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell experience-section" id="experience" aria-labelledby="experience-title">
+      <div class="section-heading compact">
+        <p class="eyebrow" id="experience-title">Experience</p>
+      </div>
+      <div class="timeline">
+        <article>
+          <span>Jul 2024 to Present</span>
+          <h3>Freelance Data Scientist | Upwork</h3>
+        </article>
+        <article>
+          <span>Apr 2024 to May 2024</span>
+          <h3>Data Scientist | Kervan Gida</h3>
+        </article>
+        <article>
+          <span>Nov 2023 to Mar 2024</span>
+          <h3>AI Bootcamp Developer | Samsung Innovation Campus</h3>
+        </article>
+        <article>
+          <span>Jun 2022 to Jun 2023</span>
+          <h3>Data Scientist | BK Law Firm</h3>
+        </article>
+        <article>
+          <span>Feb 2022 to Jul 2022</span>
+          <h3>Data Scientist | Ignitus</h3>
+        </article>
+        <article>
+          <span>Sep 2021 to Dec 2021</span>
+          <h3>Data Scientist | Behaivior</h3>
+        </article>
+        <article>
+          <span>Jul 2019 to Oct 2019</span>
+          <h3>Software Engineer Intern | Optiim</h3>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Atalay Denknalbant <span id="year"></span></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
