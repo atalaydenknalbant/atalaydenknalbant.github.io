@@ -8,6 +8,5 @@
 4. `assets/` stores the portrait graphic, publication graphics, `profile-stats.json`, and `scholar-stats.json`.
 5. `scripts/update-profile-cache.js` refreshes public GitHub and Hugging Face counts when the cache is older than five days.
 6. `scripts/update-scholar-cache.js` refreshes Google Scholar publication data through SerpApi when the cache is older than five days.
-7. `.github/workflows/update-scholar-stats.yml` refreshes all stats caches through GitHub Actions.
-
+7. `.github/workflows/update-portfolio-stats.yml` refreshes all stats caches through GitHub Actions.
 
