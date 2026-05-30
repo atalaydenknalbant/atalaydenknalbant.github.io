@@ -26,12 +26,70 @@ navToggle.addEventListener("click", () => {
   document.body.classList.toggle("menu-open", !open);
 });
 
-navLinks.addEventListener("click", (event) => {
-  if (event.target.matches("a")) {
-    navToggle.setAttribute("aria-expanded", "false");
-    navLinks.classList.remove("open");
-    document.body.classList.remove("menu-open");
+const closeMenu = () => {
+  navToggle.setAttribute("aria-expanded", "false");
+  navLinks.classList.remove("open");
+  document.body.classList.remove("menu-open");
+};
+
+const easeInOutCubic = (progress) => (
+  progress < 0.5
+    ? 4 * progress * progress * progress
+    : 1 - ((-2 * progress + 2) ** 3) / 2
+);
+
+const getScrollTarget = (target) => {
+  const headerOffset = 96;
+  const rawTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+  const maxTop = document.documentElement.scrollHeight - window.innerHeight;
+  return Math.max(0, Math.min(rawTop, maxTop));
+};
+
+const slowScrollTo = (target) => {
+  const startTop = window.scrollY;
+  const endTop = getScrollTarget(target);
+  const distance = endTop - startTop;
+  const duration = Math.min(1500, Math.max(900, Math.abs(distance) * 0.42));
+  const startTime = performance.now();
+
+  const step = (now) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    const eased = easeInOutCubic(progress);
+
+    window.scrollTo(0, startTop + distance * eased);
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  };
+
+  requestAnimationFrame(step);
+};
+
+const playNavWave = (anchor) => {
+  anchor.classList.remove("nav-wave");
+  void anchor.offsetWidth;
+  anchor.classList.add("nav-wave");
+  window.setTimeout(() => anchor.classList.remove("nav-wave"), 760);
+};
+
+document.addEventListener("click", (event) => {
+  const anchor = event.target.closest("a[href^='#']");
+  if (!anchor) return;
+
+  const target = document.querySelector(anchor.getAttribute("href"));
+  if (!target) return;
+
+  event.preventDefault();
+
+  if (navLinks.contains(anchor)) {
+    playNavWave(anchor);
+    closeMenu();
   }
+
+  slowScrollTo(target);
+  history.pushState(null, "", anchor.getAttribute("href"));
 });
 
 filterButtons.forEach((button) => {

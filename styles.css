@@ -29,6 +29,12 @@ html {
   scroll-behavior: smooth;
 }
 
+.hero-section,
+.section-shell,
+.signal-contact {
+  scroll-margin-top: 96px;
+}
+
 body {
   margin: 0;
   background: var(--page-gradient);
@@ -158,6 +164,18 @@ main,
   border-radius: var(--radius);
   font-size: 14px;
   font-weight: 750;
+}
+
+.nav-links a.nav-wave {
+  background: linear-gradient(90deg, #2980b9 0%, #6dd5fa 25%, #ffffff 50%, #6dd5fa 75%, #2980b9 100%);
+  background-size: 200% 100%;
+  background-repeat: repeat;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 9px rgba(109, 213, 250, 0.44));
+  animation: coolsky-text-wave 0.72s linear 1 both;
 }
 
 .nav-links a:hover,
@@ -620,7 +638,6 @@ main,
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
-  scroll-margin-top: 110px;
 }
 
 .signal-contact a {
