@@ -83,8 +83,17 @@ document.addEventListener("click", (event) => {
 
   event.preventDefault();
 
-  if (navLinks.contains(anchor)) {
+  const shouldPlayWave = (
+    navLinks.contains(anchor)
+    || anchor.classList.contains("brand-lockup")
+    || anchor.classList.contains("button")
+  );
+
+  if (shouldPlayWave) {
     playNavWave(anchor);
+  }
+
+  if (navLinks.contains(anchor)) {
     closeMenu();
   }
 
