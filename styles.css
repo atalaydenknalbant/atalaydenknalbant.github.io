@@ -712,9 +712,11 @@ main,
 .project-card,
 .research-card,
 .timeline article {
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
+  overflow: hidden;
 }
 
 .focus-item {
@@ -738,6 +740,9 @@ main,
   margin: 22px 0 0;
   font-size: 30px;
   line-height: 1.1;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .focus-item p,
@@ -746,6 +751,9 @@ main,
 .timeline p {
   color: var(--muted);
   margin: 14px 0 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .filter-bar {
@@ -779,6 +787,7 @@ main,
 }
 
 .project-card {
+  min-width: 0;
   min-height: 330px;
   padding: 20px;
   display: flex;
@@ -806,12 +815,22 @@ main,
   letter-spacing: 0;
 }
 
+.project-topline span {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .project-proof {
   margin: auto 0 18px;
   padding-top: 24px;
   color: var(--amber);
   font-weight: 850;
   font-size: 14px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .project-links {
@@ -822,6 +841,8 @@ main,
 
 .project-links a,
 .research-card a {
+  min-width: 0;
+  max-width: 100%;
   display: inline-flex;
   min-height: 38px;
   align-items: center;
@@ -833,6 +854,9 @@ main,
   color: var(--ink);
   font-size: 13px;
   font-weight: 850;
+  overflow-wrap: anywhere;
+  text-align: center;
+  word-break: break-word;
 }
 
 .project-links a:hover,
@@ -883,10 +907,13 @@ main,
 .research-card span,
 .timeline span {
   display: inline-block;
+  max-width: 100%;
   color: var(--lime);
   font-size: 14px;
   font-weight: 950;
   letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .research-card a {
