@@ -2,8 +2,8 @@
   color-scheme: dark;
   --bg: #0b0f14;
   --bg-2: #111827;
-  --panel: rgba(248, 250, 252, 0.075);
-  --panel-strong: rgba(248, 250, 252, 0.13);
+  --panel: #151e2a;
+  --panel-strong: #1a2533;
   --ink: #f8fafc;
   --muted: #d7e3ea;
   --line: rgba(142, 164, 180, 0.36);
@@ -40,7 +40,8 @@ html {
 
 body {
   margin: 0;
-  background: var(--page-gradient);
+  background-color: var(--bg);
+  background-image: var(--page-gradient);
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-body);
@@ -252,18 +253,21 @@ main,
 .section-heading h2 {
   font-family: var(--font-display);
   margin: 0;
-  line-height: 1;
+  line-height: 1.08;
   letter-spacing: 0;
   text-wrap: balance;
+  overflow: visible;
 }
 
 .hero-copy h2 {
   max-width: 780px;
   font-size: clamp(44px, 6vw, 72px);
+  padding-bottom: 0.08em;
 }
 
 .wave-word {
   display: inline-block;
+  padding-bottom: 0.08em;
   background: var(--text-gradient);
   background-size: 200% 100%;
   background-repeat: repeat;
@@ -331,7 +335,7 @@ main,
 .button.primary,
 .button.secondary {
   border-color: var(--line);
-  background: rgba(248, 250, 252, 0.06);
+  background: var(--panel);
   color: var(--ink);
 }
 
@@ -357,7 +361,7 @@ main,
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(248, 250, 252, 0.055);
+  background: var(--panel);
   backdrop-filter: blur(18px);
 }
 
@@ -393,7 +397,7 @@ main,
   background:
     linear-gradient(150deg, rgba(165, 197, 209, 0.2), transparent 38%),
     linear-gradient(320deg, rgba(200, 173, 127, 0.16), transparent 42%),
-    rgba(248, 250, 252, 0.055);
+    #151e2a;
   overflow: visible;
   isolation: isolate;
   box-shadow: var(--shadow);
@@ -605,7 +609,7 @@ main,
 .status-board {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(248, 250, 252, 0.065);
+  background: var(--panel);
   padding: 14px;
   width: min(100%, 330px);
 }
@@ -631,7 +635,7 @@ main,
   place-items: center;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(248, 250, 252, 0.08);
+  background: var(--panel-strong);
   color: #d7e3ea;
 }
 
@@ -710,7 +714,7 @@ main,
 .timeline article {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(248, 250, 252, 0.058);
+  background: var(--panel);
 }
 
 .focus-item {
@@ -732,8 +736,8 @@ main,
 .timeline h3 {
   font-family: var(--font-display);
   margin: 22px 0 0;
-  font-size: 21px;
-  line-height: 1.15;
+  font-size: 30px;
+  line-height: 1.1;
 }
 
 .focus-item p,
@@ -755,7 +759,7 @@ main,
   min-height: 40px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(248, 250, 252, 0.06);
+  background: var(--panel);
   color: var(--muted);
   padding: 8px 13px;
   font: inherit;
@@ -789,7 +793,7 @@ main,
 .project-card:hover {
   transform: translateY(-4px);
   border-color: rgba(165, 197, 209, 0.52);
-  background: rgba(248, 250, 252, 0.085);
+  background: var(--panel-strong);
 }
 
 .project-topline {
@@ -824,7 +828,7 @@ main,
   justify-content: center;
   padding: 8px 12px;
   border-radius: var(--radius);
-  background: rgba(248, 250, 252, 0.08);
+  background: var(--panel-strong);
   border: 1px solid var(--line);
   color: var(--ink);
   font-size: 13px;
@@ -856,7 +860,7 @@ main,
 .research-card:first-child {
   background:
     linear-gradient(135deg, rgba(165, 197, 209, 0.14), transparent 52%),
-    rgba(248, 250, 252, 0.065);
+    #151e2a;
 }
 
 .publication-media {
@@ -865,7 +869,7 @@ main,
   overflow: hidden;
   border-radius: var(--radius);
   border: 1px solid rgba(142, 164, 180, 0.32);
-  background: rgba(248, 250, 252, 0.07);
+  background: var(--panel-strong);
   margin-bottom: 18px;
 }
 
@@ -1160,5 +1164,12 @@ main,
   .research-card,
   .timeline article {
     padding: 18px;
+  }
+
+  .focus-item h3,
+  .project-card h3,
+  .research-card h3,
+  .timeline h3 {
+    font-size: 24px;
   }
 }
