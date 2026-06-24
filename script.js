@@ -149,7 +149,7 @@ let width = 0;
 let height = 0;
 let fieldHeight = 0;
 let scrollTop = 0;
-let animationFrame = null;
+let renderFrame = null;
 let ocrTerms = [];
 const pointer = {
   x: 0,
@@ -308,8 +308,8 @@ const createOcrTerms = () => {
     for (let attempt = 0; attempt < 110; attempt += 1) {
       const size = 13 + Math.random() * (width < 700 ? 5 : 8);
       const revealGrowth = 1.8;
-      const driftX = 10 + Math.random() * 8;
-      const driftY = 5 + Math.random() * 5;
+      const driftX = 0;
+      const driftY = 0;
 
       ctx.font = `800 ${size}px "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif`;
 
@@ -342,8 +342,6 @@ const createOcrTerms = () => {
         revealGrowth,
         driftX,
         driftY,
-        phase: Math.random() * Math.PI * 2,
-        drift: 0.2 + Math.random() * 0.36,
         baseAlpha: 0.1 + Math.random() * 0.07,
         blur: 3.2 + Math.random() * 2.6,
         reveal: 0,
@@ -373,24 +371,23 @@ const getTermReveal = (term, x, y) => {
   return Math.max(0, 1 - distance / 170);
 };
 
-const drawOcrTerm = (term, time) => {
-  const driftX = Math.sin(time * term.drift + term.phase) * term.driftX;
-  const driftY = Math.cos(time * term.drift * 0.78 + term.phase) * term.driftY;
-  const x = term.x + driftX;
-  const y = term.y - scrollTop + driftY;
+const drawOcrTerm = (term) => {
+  const x = term.x;
+  const y = term.y - scrollTop;
 
   if (y < -90 || y > height + 90) {
-    term.reveal += (0 - term.reveal) * 0.14;
-    return;
+    const previousReveal = term.reveal;
+    term.reveal += (0 - term.reveal) * 0.18;
+    return Math.abs(previousReveal - term.reveal) > 0.01;
   }
 
   const revealTarget = getTermReveal(term, x, y);
+  const previousReveal = term.reveal;
 
-  term.reveal += (revealTarget - term.reveal) * 0.14;
+  term.reveal += (revealTarget - term.reveal) * 0.18;
 
-  const readingPulse = Math.sin(time * 4.4 + term.phase) * 0.5 + 0.5;
   const blur = Math.max(0, term.blur * (1 - term.reveal) - term.reveal * 0.85);
-  const alpha = term.baseAlpha + term.reveal * 0.62 + readingPulse * term.reveal * 0.08;
+  const alpha = term.baseAlpha + term.reveal * 0.62;
   const size = term.size + term.reveal * term.revealGrowth;
   const visibleWidth = term.width * (size / term.size);
   const sharpened = term.reveal > 0.08;
@@ -414,24 +411,14 @@ const drawOcrTerm = (term, time) => {
   }
 
   ctx.restore();
-};
-
-const drawOcrSweep = (time) => {
-  const scanX = ((time * 58) % (width + 280)) - 140;
-  const gradient = ctx.createLinearGradient(scanX - 90, 0, scanX + 90, 0);
-
-  gradient.addColorStop(0, "rgba(198, 184, 160, 0)");
-  gradient.addColorStop(0.5, "rgba(198, 184, 160, 0.02)");
-  gradient.addColorStop(1, "rgba(198, 184, 160, 0)");
-
-  ctx.fillStyle = gradient;
-  ctx.fillRect(scanX - 90, 0, 180, height);
+  return Math.abs(previousReveal - term.reveal) > 0.01;
 };
 
 const drawPointerFocus = () => {
-  pointer.focus += ((pointer.active ? 1 : 0) - pointer.focus) * 0.08;
+  const previousFocus = pointer.focus;
+  pointer.focus += ((pointer.active ? 1 : 0) - pointer.focus) * 0.12;
 
-  if (pointer.focus < 0.01) return;
+  if (pointer.focus < 0.01) return Math.abs(previousFocus - pointer.focus) > 0.01;
 
   const radius = 170 + pointer.focus * 80;
   const gradient = ctx.createRadialGradient(
@@ -449,29 +436,37 @@ const drawPointerFocus = () => {
 
   ctx.fillStyle = gradient;
   ctx.fillRect(pointer.x - radius, pointer.y - radius, radius * 2, radius * 2);
+  return Math.abs(previousFocus - pointer.focus) > 0.01;
 };
 
-const drawOcrField = (now = 0) => {
-  const motionScale = prefersReducedMotion.matches ? 0.55 : 1;
-  const time = now * 0.001 * motionScale;
-
+const drawOcrField = () => {
+  renderFrame = null;
   updateScrollState();
   ctx.clearRect(0, 0, width, height);
-  drawOcrSweep(time);
 
+  let needsFollowUpFrame = false;
   for (const term of ocrTerms) {
-    drawOcrTerm(term, time);
+    needsFollowUpFrame = drawOcrTerm(term) || needsFollowUpFrame;
   }
 
-  drawPointerFocus();
-  animationFrame = requestAnimationFrame(drawOcrField);
+  needsFollowUpFrame = drawPointerFocus() || needsFollowUpFrame;
+
+  if (needsFollowUpFrame && !prefersReducedMotion.matches) {
+    scheduleOcrRender();
+  }
+};
+
+const scheduleOcrRender = () => {
+  if (!renderFrame) {
+    renderFrame = requestAnimationFrame(drawOcrField);
+  }
 };
 
 const initCanvas = () => {
   resizeCanvas();
   updateScrollState();
   createOcrTerms();
-  drawOcrField();
+  scheduleOcrRender();
 };
 
 initCanvas();
@@ -480,20 +475,27 @@ window.addEventListener("pointermove", (event) => {
   pointer.x = event.clientX;
   pointer.y = event.clientY;
   pointer.active = true;
+  scheduleOcrRender();
 }, { passive: true });
 
 window.addEventListener("pointerleave", () => {
   pointer.active = false;
+  scheduleOcrRender();
 }, { passive: true });
 
-window.addEventListener("scroll", updateScrollState, { passive: true });
+window.addEventListener("scroll", () => {
+  updateScrollState();
+  scheduleOcrRender();
+}, { passive: true });
 
 window.addEventListener("resize", () => {
-  if (animationFrame) cancelAnimationFrame(animationFrame);
+  if (renderFrame) cancelAnimationFrame(renderFrame);
+  renderFrame = null;
   initCanvas();
 });
 
 window.addEventListener("load", () => {
-  if (animationFrame) cancelAnimationFrame(animationFrame);
+  if (renderFrame) cancelAnimationFrame(renderFrame);
+  renderFrame = null;
   initCanvas();
 });
