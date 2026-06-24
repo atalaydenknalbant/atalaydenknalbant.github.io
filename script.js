@@ -4,8 +4,7 @@ const navLinks = document.querySelector(".nav-links");
 const filterButtons = document.querySelectorAll(".filter-button");
 const projectCards = document.querySelectorAll(".project-card");
 const year = document.querySelector("#year");
-const canvas = document.querySelector("#signal-canvas");
-const ctx = canvas.getContext("2d");
+const ocrField = document.querySelector("#ocr-field");
 const githubRepoCount = document.querySelector("#githubRepoCount");
 const hfSpaceCount = document.querySelector("#hfSpaceCount");
 const publishedPaperCount = document.querySelector("#publishedPaperCount");
@@ -145,20 +144,6 @@ getJsonCache("assets/scholar-stats.json")
   .then((stats) => setMetricText(publishedPaperCount, stats.paperCount))
   .catch(() => setMetricText(publishedPaperCount, "2"));
 
-let width = 0;
-let height = 0;
-let fieldHeight = 0;
-let scrollTop = 0;
-let renderFrame = null;
-let ocrTerms = [];
-const pointer = {
-  x: 0,
-  y: 0,
-  active: false,
-  focus: 0,
-};
-
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const technicalTerms = [
   "computer vision",
   "object detection",
@@ -254,24 +239,25 @@ const technicalTerms = [
   "adversarial patch",
   "visual benchmark",
 ];
+let ocrResizeTimer = null;
+let activeOcrTerm = null;
+let ocrPointerFrame = null;
+let latestPointer = null;
+const supportsOcrHover = window.matchMedia("(hover: hover)");
 
-const resizeCanvas = () => {
-  const ratio = Math.min(window.devicePixelRatio || 1, 2);
-  width = canvas.offsetWidth;
-  height = canvas.offsetHeight;
-  fieldHeight = Math.max(
-    height * 2,
-    document.documentElement.scrollHeight,
-    document.body.scrollHeight,
-  );
-  canvas.width = Math.floor(width * ratio);
-  canvas.height = Math.floor(height * ratio);
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-};
+const getPageHeight = () => Math.max(
+  window.innerHeight * 2,
+  document.documentElement.scrollHeight,
+  document.body.scrollHeight,
+);
 
-const updateScrollState = () => {
-  scrollTop = Math.max(0, window.scrollY || window.pageYOffset || 0);
-};
+const getPageWidth = () => (
+  document.documentElement.clientWidth
+  || window.innerWidth
+  || 1200
+);
+
+const estimateTextWidth = (text, fontSize) => text.length * fontSize * 0.57;
 
 const shuffleTerms = (terms) => {
   const shuffled = Array.from(new Set(terms));
@@ -291,211 +277,130 @@ const hasBoxCollision = (candidate, boxes) => boxes.some((box) => (
   && candidate.bottom > box.top
 ));
 
-const createOcrTerms = () => {
-  const minCount = width < 700 ? 10 : 18;
-  const maxCount = width < 700 ? 30 : 72;
-  const desiredCount = Math.max(minCount, Math.min(maxCount, Math.floor((width * fieldHeight) / 68000)));
-  const selectedTerms = shuffleTerms(technicalTerms);
+const createOcrField = () => {
+  if (!ocrField) return;
+
+  const pageWidth = getPageWidth();
+  const pageHeight = getPageHeight();
+  const minCount = pageWidth < 700 ? 5 : 8;
+  const maxCount = pageWidth < 700 ? 9 : 16;
+  const desiredCount = Math.min(
+    technicalTerms.length,
+    Math.max(minCount, Math.min(maxCount, Math.floor(pageHeight / (pageWidth < 700 ? 520 : 360)))),
+  );
+  const horizontalMargin = pageWidth < 700 ? 24 : 48;
+  const verticalMargin = 96;
   const placedBoxes = [];
 
-  ocrTerms = [];
+  ocrField.style.height = `${pageHeight}px`;
+  setActiveOcrTerm(null);
+  ocrField.innerHTML = "";
 
-  for (const text of selectedTerms) {
-    if (ocrTerms.length >= desiredCount) break;
+  for (const text of shuffleTerms(technicalTerms)) {
+    if (placedBoxes.length >= desiredCount) break;
 
-    let placedTerm = null;
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const fontSize = 13 + Math.random() * (pageWidth < 700 ? 4 : 7);
+      const textWidth = estimateTextWidth(text, fontSize);
+      const maxWidth = textWidth + 18;
+      const availableWidth = pageWidth - horizontalMargin * 2;
 
-    for (let attempt = 0; attempt < 110; attempt += 1) {
-      const size = 13 + Math.random() * (width < 700 ? 5 : 8);
-      const revealGrowth = 1.8;
-      const driftX = 0;
-      const driftY = 0;
+      if (maxWidth > availableWidth) continue;
 
-      ctx.font = `800 ${size}px "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif`;
-
-      const textWidth = ctx.measureText(text).width;
-      const maxWidth = textWidth * ((size + revealGrowth) / size);
-      const horizontalMargin = 28;
-      const verticalMargin = 76;
-
-      if (maxWidth > width - horizontalMargin * 2) continue;
-
-      const x = horizontalMargin + Math.random() * Math.max(1, width - maxWidth - horizontalMargin * 2);
-      const y = verticalMargin + Math.random() * Math.max(1, fieldHeight - verticalMargin * 2);
+      const x = horizontalMargin + Math.random() * Math.max(1, availableWidth - maxWidth);
+      const y = verticalMargin + Math.random() * Math.max(1, pageHeight - verticalMargin * 2);
       const box = {
-        left: x - driftX - 30,
-        right: x + maxWidth + driftX + 30,
-        top: y - size * 0.88 - driftY - 22,
-        bottom: y + size * 0.88 + driftY + 22,
+        left: x - 34,
+        right: x + maxWidth + 34,
+        top: y - fontSize * 1.1 - 24,
+        bottom: y + fontSize * 1.1 + 24,
       };
 
       if (hasBoxCollision(box, placedBoxes)) continue;
 
+      const term = document.createElement("span");
+      term.className = "ocr-term";
+      term.textContent = text;
+      term.style.left = `${x}px`;
+      term.style.top = `${y}px`;
+      term.style.fontSize = `${fontSize}px`;
+      term.style.opacity = `${0.68 + Math.random() * 0.18}`;
+      term.ocrBox = box;
+      ocrField.appendChild(term);
       placedBoxes.push(box);
-      placedTerm = {
-        text,
-        x,
-        y,
-        width: textWidth,
-        maxWidth,
-        size,
-        revealGrowth,
-        driftX,
-        driftY,
-        baseAlpha: 0.1 + Math.random() * 0.07,
-        blur: 3.2 + Math.random() * 2.6,
-        reveal: 0,
-      };
       break;
     }
+  }
+};
 
-    if (placedTerm) {
-      ocrTerms.push(placedTerm);
+const setActiveOcrTerm = (term) => {
+  if (activeOcrTerm === term) return;
+  if (activeOcrTerm) activeOcrTerm.classList.remove("is-revealed");
+  activeOcrTerm = term;
+  if (activeOcrTerm) activeOcrTerm.classList.add("is-revealed");
+};
+
+const getHoveredOcrTerm = ({ x, y }) => {
+  if (!ocrField || !supportsOcrHover.matches) return null;
+
+  const pageY = y + window.scrollY;
+  let bestTerm = null;
+  let bestDistance = Infinity;
+
+  for (const term of ocrField.children) {
+    const box = term.ocrBox;
+    if (!box) continue;
+
+    const left = box.left - 18;
+    const right = box.right + 18;
+    const top = box.top - 18;
+    const bottom = box.bottom + 18;
+
+    if (x < left || x > right || pageY < top || pageY > bottom) continue;
+
+    const centerX = (left + right) / 2;
+    const centerY = (top + bottom) / 2;
+    const distance = Math.hypot(x - centerX, pageY - centerY);
+
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestTerm = term;
     }
   }
+
+  return bestTerm;
 };
 
-const getTermReveal = (term, x, y) => {
-  if (!pointer.active) return 0;
-
-  const padX = 42;
-  const padY = Math.max(28, term.size * 1.4);
-  const left = x - padX;
-  const right = x + term.maxWidth + padX;
-  const top = y - padY;
-  const bottom = y + padY;
-  const nearestX = Math.max(left, Math.min(pointer.x, right));
-  const nearestY = Math.max(top, Math.min(pointer.y, bottom));
-  const distance = Math.hypot(pointer.x - nearestX, pointer.y - nearestY);
-
-  return Math.max(0, 1 - distance / 170);
+const updateOcrHover = () => {
+  ocrPointerFrame = null;
+  setActiveOcrTerm(latestPointer ? getHoveredOcrTerm(latestPointer) : null);
 };
 
-const drawOcrTerm = (term) => {
-  const x = term.x;
-  const y = term.y - scrollTop;
+const scheduleOcrHover = (event) => {
+  if (!supportsOcrHover.matches) return;
 
-  if (y < -90 || y > height + 90) {
-    const previousReveal = term.reveal;
-    term.reveal += (0 - term.reveal) * 0.18;
-    return Math.abs(previousReveal - term.reveal) > 0.01;
-  }
+  latestPointer = {
+    x: event.clientX,
+    y: event.clientY,
+  };
 
-  const revealTarget = getTermReveal(term, x, y);
-  const previousReveal = term.reveal;
-
-  term.reveal += (revealTarget - term.reveal) * 0.18;
-
-  const blur = Math.max(0, term.blur * (1 - term.reveal) - term.reveal * 0.85);
-  const alpha = term.baseAlpha + term.reveal * 0.62;
-  const size = term.size + term.reveal * term.revealGrowth;
-  const visibleWidth = term.width * (size / term.size);
-  const sharpened = term.reveal > 0.08;
-
-  ctx.save();
-  ctx.textBaseline = "middle";
-  ctx.font = `800 ${size}px "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif`;
-  ctx.filter = `blur(${blur.toFixed(2)}px)`;
-  ctx.fillStyle = sharpened
-    ? `rgba(232, 226, 214, ${alpha})`
-    : `rgba(179, 184, 184, ${alpha})`;
-  ctx.fillText(term.text, x, y);
-
-  if (term.reveal > 0.04) {
-    ctx.filter = "none";
-    ctx.globalAlpha = term.reveal * 0.55;
-    ctx.fillStyle = "rgba(198, 184, 160, 0.82)";
-    ctx.fillRect(x, y + size * 0.64, visibleWidth * term.reveal, 1);
-    ctx.globalAlpha = term.reveal * 0.18;
-    ctx.fillRect(x, y - size * 0.72, visibleWidth, 1);
-  }
-
-  ctx.restore();
-  return Math.abs(previousReveal - term.reveal) > 0.01;
-};
-
-const drawPointerFocus = () => {
-  const previousFocus = pointer.focus;
-  pointer.focus += ((pointer.active ? 1 : 0) - pointer.focus) * 0.12;
-
-  if (pointer.focus < 0.01) return Math.abs(previousFocus - pointer.focus) > 0.01;
-
-  const radius = 170 + pointer.focus * 80;
-  const gradient = ctx.createRadialGradient(
-    pointer.x,
-    pointer.y,
-    0,
-    pointer.x,
-    pointer.y,
-    radius,
-  );
-
-  gradient.addColorStop(0, `rgba(198, 184, 160, ${0.06 * pointer.focus})`);
-  gradient.addColorStop(0.55, `rgba(198, 184, 160, ${0.02 * pointer.focus})`);
-  gradient.addColorStop(1, "rgba(198, 184, 160, 0)");
-
-  ctx.fillStyle = gradient;
-  ctx.fillRect(pointer.x - radius, pointer.y - radius, radius * 2, radius * 2);
-  return Math.abs(previousFocus - pointer.focus) > 0.01;
-};
-
-const drawOcrField = () => {
-  renderFrame = null;
-  updateScrollState();
-  ctx.clearRect(0, 0, width, height);
-
-  let needsFollowUpFrame = false;
-  for (const term of ocrTerms) {
-    needsFollowUpFrame = drawOcrTerm(term) || needsFollowUpFrame;
-  }
-
-  needsFollowUpFrame = drawPointerFocus() || needsFollowUpFrame;
-
-  if (needsFollowUpFrame && !prefersReducedMotion.matches) {
-    scheduleOcrRender();
+  if (!ocrPointerFrame) {
+    ocrPointerFrame = window.requestAnimationFrame(updateOcrHover);
   }
 };
 
-const scheduleOcrRender = () => {
-  if (!renderFrame) {
-    renderFrame = requestAnimationFrame(drawOcrField);
-  }
-};
-
-const initCanvas = () => {
-  resizeCanvas();
-  updateScrollState();
-  createOcrTerms();
-  scheduleOcrRender();
-};
-
-initCanvas();
-
-window.addEventListener("pointermove", (event) => {
-  pointer.x = event.clientX;
-  pointer.y = event.clientY;
-  pointer.active = true;
-  scheduleOcrRender();
-}, { passive: true });
-
-window.addEventListener("pointerleave", () => {
-  pointer.active = false;
-  scheduleOcrRender();
-}, { passive: true });
-
-window.addEventListener("scroll", () => {
-  updateScrollState();
-  scheduleOcrRender();
-}, { passive: true });
+createOcrField();
 
 window.addEventListener("resize", () => {
-  if (renderFrame) cancelAnimationFrame(renderFrame);
-  renderFrame = null;
-  initCanvas();
-});
+  window.clearTimeout(ocrResizeTimer);
+  setActiveOcrTerm(null);
+  latestPointer = null;
+  ocrResizeTimer = window.setTimeout(createOcrField, 160);
+}, { passive: true });
 
-window.addEventListener("load", () => {
-  if (renderFrame) cancelAnimationFrame(renderFrame);
-  renderFrame = null;
-  initCanvas();
-});
+window.addEventListener("load", createOcrField);
+window.addEventListener("pointermove", scheduleOcrHover, { passive: true });
+window.addEventListener("pointerleave", () => {
+  latestPointer = null;
+  setActiveOcrTerm(null);
+}, { passive: true });
