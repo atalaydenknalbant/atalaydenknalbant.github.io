@@ -1,406 +1,193 @@
 const header = document.querySelector(".site-header");
 const navToggle = document.querySelector(".nav-toggle");
 const navLinks = document.querySelector(".nav-links");
-const filterButtons = document.querySelectorAll(".filter-button");
-const projectCards = document.querySelectorAll(".project-card");
-const year = document.querySelector("#year");
-const ocrField = document.querySelector("#ocr-field");
-const githubRepoCount = document.querySelector("#githubRepoCount");
-const hfSpaceCount = document.querySelector("#hfSpaceCount");
-const publishedPaperCount = document.querySelector("#publishedPaperCount");
+const subscribers = new Set();
+const animationStart = performance.now();
+let elapsed = 0;
+let scrollFrame = null;
 
-year.textContent = new Date().getFullYear();
-
-const setHeaderState = () => {
-  header.dataset.elevated = String(window.scrollY > 18);
+document.querySelector("#year").textContent = new Date().getFullYear();
+const updateHeader = () => {
+  header.dataset.elevated = String(scrollY > 18);
 };
+addEventListener("scroll", updateHeader, { passive: true });
+updateHeader();
 
-setHeaderState();
-window.addEventListener("scroll", setHeaderState, { passive: true });
+function animate(now) {
+  elapsed = (now - animationStart) / 1000;
+  subscribers.forEach((draw) => draw(elapsed));
+  requestAnimationFrame(animate);
+}
+function subscribe(draw) {
+  subscribers.add(draw);
+  draw(elapsed);
+}
+requestAnimationFrame(animate);
 
-navToggle.addEventListener("click", () => {
-  const open = navToggle.getAttribute("aria-expanded") === "true";
-  navToggle.setAttribute("aria-expanded", String(!open));
-  navLinks.classList.toggle("open", !open);
-  document.body.classList.toggle("menu-open", !open);
+function setMenu(open, restoreFocus = false) {
+  navToggle.setAttribute("aria-expanded", String(open));
+  navToggle.setAttribute(
+    "aria-label",
+    open ? "Close navigation" : "Open navigation",
+  );
+  navToggle.title = open ? "Close navigation" : "Open navigation";
+  navToggle.querySelector("img").src =
+    "assets/icons/" + (open ? "x" : "menu") + ".svg";
+  navLinks.classList.toggle("open", open);
+  document.body.classList.toggle("menu-open", open);
+  if (restoreFocus) navToggle.focus();
+}
+navToggle.addEventListener("click", () =>
+  setMenu(navToggle.getAttribute("aria-expanded") !== "true"),
+);
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && navLinks.classList.contains("open"))
+    setMenu(false, true);
+});
+document.addEventListener("click", (event) => {
+  if (!header.contains(event.target) && navLinks.classList.contains("open"))
+    setMenu(false);
+});
+matchMedia("(min-width: 761px)").addEventListener("change", (event) => {
+  if (event.matches) setMenu(false);
 });
 
-const closeMenu = () => {
-  navToggle.setAttribute("aria-expanded", "false");
-  navLinks.classList.remove("open");
-  document.body.classList.remove("menu-open");
-};
-
-const easeInOutCubic = (progress) => (
-  progress < 0.5
-    ? 4 * progress * progress * progress
-    : 1 - ((-2 * progress + 2) ** 3) / 2
+const filterButtons = [...document.querySelectorAll(".filter-button")];
+const projectCards = [...document.querySelectorAll(".project-card")];
+function applyFilter(filter) {
+  filterButtons.forEach((button) => {
+    const active = button.dataset.filter === filter;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  let count = 0;
+  projectCards.forEach((card) => {
+    card.hidden =
+      filter !== "all" && !card.dataset.category.split(" ").includes(filter);
+    if (!card.hidden) count++;
+  });
+  document.querySelector("#filter-status").textContent =
+    count + " projects shown";
+}
+filterButtons.forEach((button) =>
+  button.addEventListener("click", () => applyFilter(button.dataset.filter)),
 );
+applyFilter("all");
 
-const getScrollTarget = (target) => {
-  const headerOffset = 96;
-  const rawTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
-  const maxTop = document.documentElement.scrollHeight - window.innerHeight;
-  return Math.max(0, Math.min(rawTop, maxTop));
+const stopScroll = () => {
+  cancelAnimationFrame(scrollFrame);
+  scrollFrame = null;
 };
-
-const slowScrollTo = (target) => {
-  const startTop = window.scrollY;
-  const endTop = getScrollTarget(target);
-  const distance = endTop - startTop;
-  const duration = Math.min(1500, Math.max(900, Math.abs(distance) * 0.42));
+addEventListener("wheel", stopScroll, { passive: true });
+addEventListener("touchmove", stopScroll, { passive: true });
+addEventListener("keydown", (event) => {
+  if (
+    ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(
+      event.key,
+    )
+  )
+    stopScroll();
+});
+function revealTarget(target) {
+  const details = target.closest("details");
+  if (details) details.open = true;
+  if (target.closest(".project-card")) applyFilter("all");
+}
+function scrollToTarget(target, instant = false) {
+  stopScroll();
+  revealTarget(target);
+  const start = scrollY;
+  const destination = () =>
+    Math.max(
+      0,
+      Math.min(
+        target.getBoundingClientRect().top + scrollY - header.offsetHeight - 20,
+        document.documentElement.scrollHeight - innerHeight,
+      ),
+    );
+  const duration = instant
+    ? 0
+    : Math.min(1500, Math.max(850, Math.abs(destination() - start) * 0.5));
   const startTime = performance.now();
-
   const step = (now) => {
-    const elapsed = now - startTime;
-    const progress = Math.min(1, elapsed / duration);
-    const eased = easeInOutCubic(progress);
-
-    window.scrollTo(0, startTop + distance * eased);
-
-    if (progress < 1) {
-      requestAnimationFrame(step);
+    const progress = duration ? Math.min(1, (now - startTime) / duration) : 1;
+    const eased =
+      progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
+    window.scrollTo({
+      top: start + (destination() - start) * eased,
+      behavior: "instant",
+    });
+    if (progress < 1) scrollFrame = requestAnimationFrame(step);
+    else {
+      const focusTarget =
+        target.id === "contact" ? target.querySelector("a") : target;
+      if (!focusTarget.hasAttribute("tabindex") && focusTarget.tagName !== "A")
+        focusTarget.setAttribute("tabindex", "-1");
+      focusTarget.focus({ preventScroll: true });
+      scrollFrame = null;
     }
   };
-
-  requestAnimationFrame(step);
-};
-
-const playNavWave = (anchor) => {
+  scrollFrame = requestAnimationFrame(step);
+}
+document.addEventListener("click", (event) => {
+  const anchor = event.target.closest("a[href^='#']");
+  if (
+    !anchor ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  )
+    return;
+  const hash = anchor.getAttribute("href");
+  const target = document.getElementById(hash.slice(1));
+  if (!target) return;
+  event.preventDefault();
+  setMenu(false);
   anchor.classList.remove("nav-wave");
   void anchor.offsetWidth;
   anchor.classList.add("nav-wave");
-  window.setTimeout(() => anchor.classList.remove("nav-wave"), 760);
-};
-
-document.addEventListener("click", (event) => {
-  const anchor = event.target.closest("a[href^='#']");
-  if (!anchor) return;
-
-  const target = document.querySelector(anchor.getAttribute("href"));
-  if (!target) return;
-
-  event.preventDefault();
-
-  const shouldPlayWave = (
-    navLinks.contains(anchor)
-    || anchor.classList.contains("brand-lockup")
-    || anchor.classList.contains("button")
-  );
-
-  if (shouldPlayWave) {
-    playNavWave(anchor);
-  }
-
-  if (navLinks.contains(anchor)) {
-    closeMenu();
-  }
-
-  slowScrollTo(target);
-  history.pushState(null, "", anchor.getAttribute("href"));
+  setTimeout(() => anchor.classList.remove("nav-wave"), 740);
+  history.pushState(null, "", hash);
+  scrollToTarget(target);
 });
+function restoreHash() {
+  const target = document.getElementById(location.hash.slice(1));
+  if (target) scrollToTarget(target, true);
+}
+addEventListener("hashchange", restoreHash);
+if (location.hash) addEventListener("load", restoreHash, { once: true });
 
-filterButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const filter = button.dataset.filter;
-    filterButtons.forEach((item) => item.classList.toggle("active", item === button));
-    projectCards.forEach((card) => {
-      const visible = filter === "all" || card.dataset.category.split(" ").includes(filter);
-      card.classList.toggle("is-hidden", !visible);
+async function loadMetrics(url, fields) {
+  try {
+    const response = await fetch(url, {
+      cache: "no-cache",
+      signal: AbortSignal.timeout(8000),
     });
-  });
-});
-
-const setMetricText = (element, value) => {
-  if (element) element.textContent = value;
-};
-
-const getJsonCache = async (cacheUrl) => {
-  const response = await fetch(cacheUrl, {
-    cache: "no-cache",
-    headers: {
-      accept: "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Cache request failed: ${response.status}`);
+    if (!response.ok) return;
+    const data = await response.json();
+    fields.forEach(([property, id]) => {
+      if (Number.isInteger(data[property]) && data[property] >= 0)
+        document.getElementById(id).textContent = data[property];
+    });
+  } catch {
+    /* Keep the last published counts if the cache is unavailable. */
   }
+}
+loadMetrics("assets/profile-stats.json", [
+  ["githubRepoCount", "githubRepoCount"],
+  ["hfSpaceCount", "hfSpaceCount"],
+]);
+loadMetrics("assets/scholar-stats.json", [
+  ["paperCount", "publishedPaperCount"],
+]);
 
-  return response.json();
-};
-
-getJsonCache("assets/profile-stats.json")
-  .then((stats) => {
-    setMetricText(githubRepoCount, stats.githubRepoCount);
-    setMetricText(hfSpaceCount, stats.hfSpaceCount);
-  })
-  .catch(() => {
-    setMetricText(githubRepoCount, "33");
-    setMetricText(hfSpaceCount, "6");
-  });
-
-getJsonCache("assets/scholar-stats.json")
-  .then((stats) => setMetricText(publishedPaperCount, stats.paperCount))
-  .catch(() => setMetricText(publishedPaperCount, "2"));
-
-const technicalTerms = [
-  "computer vision",
-  "object detection",
-  "semantic segmentation",
-  "instance segmentation",
-  "panoptic segmentation",
-  "image classification",
-  "keypoint detection",
-  "pose estimation",
-  "optical flow",
-  "depth estimation",
-  "monocular depth",
-  "stereo matching",
-  "visual odometry",
-  "camera calibration",
-  "epipolar geometry",
-  "homography estimation",
-  "bundle adjustment",
-  "image registration",
-  "feature matching",
-  "SIFT descriptor",
-  "ORB features",
-  "Harris corner",
-  "Canny edge",
-  "Hough transform",
-  "RANSAC fitting",
-  "saliency map",
-  "class activation map",
-  "Grad CAM",
-  "CNN backbone",
-  "ResNet feature map",
-  "Vision Transformer",
-  "Swin Transformer",
-  "U Net decoder",
-  "DeepLab head",
-  "YOLO detector",
-  "Faster R CNN",
-  "Mask R CNN",
-  "DETR decoder",
-  "SAM prompt",
-  "DINO features",
-  "CLIP image encoder",
-  "feature pyramid network",
-  "atrous convolution",
-  "dilated convolution",
-  "deformable convolution",
-  "depthwise convolution",
-  "anchor boxes",
-  "region proposal",
-  "ROI pooling",
-  "bounding box regression",
-  "non maximum suppression",
-  "IoU threshold",
-  "COCO mAP",
-  "Pascal VOC",
-  "Dice coefficient",
-  "boundary F score",
-  "pixel accuracy",
-  "segmentation mask",
-  "mask refinement",
-  "foreground extraction",
-  "background subtraction",
-  "edge detection",
-  "corner detection",
-  "object tracking",
-  "multi object tracking",
-  "re identification",
-  "tracking by detection",
-  "motion estimation",
-  "scene understanding",
-  "visual grounding",
-  "image retrieval",
-  "contrastive pretraining",
-  "self supervised vision",
-  "domain adaptation",
-  "synthetic augmentation",
-  "photometric distortion",
-  "random crop",
-  "color jitter",
-  "mosaic augmentation",
-  "cutmix augmentation",
-  "label smoothing",
-  "occlusion handling",
-  "small object detection",
-  "zero shot detection",
-  "few shot segmentation",
-  "open vocabulary detection",
-  "weak supervision",
-  "active learning",
-  "annotation noise",
-  "dataset bias",
-  "out of distribution image",
-  "adversarial patch",
-  "visual benchmark",
-];
-let ocrResizeTimer = null;
-let activeOcrTerm = null;
-let ocrPointerFrame = null;
-let latestPointer = null;
-const supportsOcrHover = window.matchMedia("(hover: hover)");
-
-const getPageHeight = () => Math.max(
-  window.innerHeight * 2,
-  document.documentElement.scrollHeight,
-  document.body.scrollHeight,
-);
-
-const getPageWidth = () => (
-  document.documentElement.clientWidth
-  || window.innerWidth
-  || 1200
-);
-
-const estimateTextWidth = (text, fontSize) => text.length * fontSize * 0.57;
-
-const shuffleTerms = (terms) => {
-  const shuffled = Array.from(new Set(terms));
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-
-  return shuffled;
-};
-
-const hasBoxCollision = (candidate, boxes) => boxes.some((box) => (
-  candidate.left < box.right
-  && candidate.right > box.left
-  && candidate.top < box.bottom
-  && candidate.bottom > box.top
-));
-
-const createOcrField = () => {
-  if (!ocrField) return;
-
-  const pageWidth = getPageWidth();
-  const pageHeight = getPageHeight();
-  const minCount = pageWidth < 700 ? 5 : 8;
-  const maxCount = pageWidth < 700 ? 9 : 16;
-  const desiredCount = Math.min(
-    technicalTerms.length,
-    Math.max(minCount, Math.min(maxCount, Math.floor(pageHeight / (pageWidth < 700 ? 520 : 360)))),
+import("./scripts/hero-orbit.mjs")
+  .then(({ createHeroOrbit }) =>
+    createHeroOrbit(document.querySelector(".identity-orbit")),
+  )
+  .then(subscribe)
+  .catch((error) =>
+    console.warn("Using the accessible orbit fallback:", error.message),
   );
-  const horizontalMargin = pageWidth < 700 ? 24 : 48;
-  const verticalMargin = 96;
-  const placedBoxes = [];
-
-  ocrField.style.height = `${pageHeight}px`;
-  setActiveOcrTerm(null);
-  ocrField.innerHTML = "";
-
-  for (const text of shuffleTerms(technicalTerms)) {
-    if (placedBoxes.length >= desiredCount) break;
-
-    for (let attempt = 0; attempt < 100; attempt += 1) {
-      const fontSize = 13 + Math.random() * (pageWidth < 700 ? 4 : 7);
-      const textWidth = estimateTextWidth(text, fontSize);
-      const maxWidth = textWidth + 18;
-      const availableWidth = pageWidth - horizontalMargin * 2;
-
-      if (maxWidth > availableWidth) continue;
-
-      const x = horizontalMargin + Math.random() * Math.max(1, availableWidth - maxWidth);
-      const y = verticalMargin + Math.random() * Math.max(1, pageHeight - verticalMargin * 2);
-      const box = {
-        left: x - 34,
-        right: x + maxWidth + 34,
-        top: y - fontSize * 1.1 - 24,
-        bottom: y + fontSize * 1.1 + 24,
-      };
-
-      if (hasBoxCollision(box, placedBoxes)) continue;
-
-      const term = document.createElement("span");
-      term.className = "ocr-term";
-      term.textContent = text;
-      term.style.left = `${x}px`;
-      term.style.top = `${y}px`;
-      term.style.fontSize = `${fontSize}px`;
-      term.style.opacity = `${0.68 + Math.random() * 0.18}`;
-      term.ocrBox = box;
-      ocrField.appendChild(term);
-      placedBoxes.push(box);
-      break;
-    }
-  }
-};
-
-const setActiveOcrTerm = (term) => {
-  if (activeOcrTerm === term) return;
-  if (activeOcrTerm) activeOcrTerm.classList.remove("is-revealed");
-  activeOcrTerm = term;
-  if (activeOcrTerm) activeOcrTerm.classList.add("is-revealed");
-};
-
-const getHoveredOcrTerm = ({ x, y }) => {
-  if (!ocrField || !supportsOcrHover.matches) return null;
-
-  const pageY = y + window.scrollY;
-  let bestTerm = null;
-  let bestDistance = Infinity;
-
-  for (const term of ocrField.children) {
-    const box = term.ocrBox;
-    if (!box) continue;
-
-    const left = box.left - 18;
-    const right = box.right + 18;
-    const top = box.top - 18;
-    const bottom = box.bottom + 18;
-
-    if (x < left || x > right || pageY < top || pageY > bottom) continue;
-
-    const centerX = (left + right) / 2;
-    const centerY = (top + bottom) / 2;
-    const distance = Math.hypot(x - centerX, pageY - centerY);
-
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      bestTerm = term;
-    }
-  }
-
-  return bestTerm;
-};
-
-const updateOcrHover = () => {
-  ocrPointerFrame = null;
-  setActiveOcrTerm(latestPointer ? getHoveredOcrTerm(latestPointer) : null);
-};
-
-const scheduleOcrHover = (event) => {
-  if (!supportsOcrHover.matches) return;
-
-  latestPointer = {
-    x: event.clientX,
-    y: event.clientY,
-  };
-
-  if (!ocrPointerFrame) {
-    ocrPointerFrame = window.requestAnimationFrame(updateOcrHover);
-  }
-};
-
-createOcrField();
-
-window.addEventListener("resize", () => {
-  window.clearTimeout(ocrResizeTimer);
-  setActiveOcrTerm(null);
-  latestPointer = null;
-  ocrResizeTimer = window.setTimeout(createOcrField, 160);
-}, { passive: true });
-
-window.addEventListener("load", createOcrField);
-window.addEventListener("pointermove", scheduleOcrHover, { passive: true });
-window.addEventListener("pointerleave", () => {
-  latestPointer = null;
-  setActiveOcrTerm(null);
-}, { passive: true });
