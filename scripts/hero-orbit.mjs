@@ -227,12 +227,12 @@ export function createHeroOrbit(element) {
   canvas.addEventListener("webglcontextlost", (event) => {
     event.preventDefault();
     lost = true;
-    element.dataset.renderer = "fallback";
+    element.dataset.renderer = "unavailable";
   });
   canvas.addEventListener("webglcontextrestored", () => {
     lost = false;
-    element.dataset.renderer = "webgl";
     resize();
+    element.dataset.renderer = "webgl";
   });
   addEventListener(
     "pagehide",

@@ -310,23 +310,6 @@ img {
   animation: text-wave 3.2s linear infinite;
   filter: drop-shadow(0 0 12px rgba(165, 197, 209, 0.26));
 }
-.identity-orbit[data-renderer="fallback"] .orbit-label {
-  mask-image: none !important;
-  border: 1px solid #529bb7;
-  background: #142737;
-  animation: fallback-orbit 9s linear infinite;
-  --phase: 0deg;
-  --radius: 152px;
-}
-.identity-orbit[data-renderer="fallback"] .orbit-cv {
-  --phase: 120deg;
-}
-.identity-orbit[data-renderer="fallback"] .orbit-ml {
-  --phase: 240deg;
-}
-.identity-orbit[data-renderer="fallback"] .orbit-canvas {
-  visibility: hidden;
-}
 .status-board {
   width: min(100%, 330px);
 }
@@ -767,16 +750,6 @@ img {
     background-position: 200% 50%;
   }
 }
-@keyframes fallback-orbit {
-  from {
-    transform: translate(-50%, -50%) rotate(var(--phase))
-      translateX(var(--radius)) rotate(calc(-1 * var(--phase)));
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(calc(360deg + var(--phase)))
-      translateX(var(--radius)) rotate(calc(-360deg - var(--phase)));
-  }
-}
 @media (max-width: 1250px) {
   .hero-grid {
     grid-template-columns: 420px minmax(0, 1fr);
@@ -802,9 +775,6 @@ img {
   .metric-strip div {
     font-size: 14px;
     padding-inline: 13px;
-  }
-  .identity-orbit[data-renderer="fallback"] .orbit-label {
-    --radius: 128px;
   }
 }
 @media (max-width: 1050px) {
@@ -832,9 +802,6 @@ img {
   }
   .nav-links {
     gap: 22px;
-  }
-  .identity-orbit[data-renderer="fallback"] .orbit-label {
-    --radius: 108px;
   }
   .featured-grid {
     gap: 28px;
@@ -943,12 +910,6 @@ img {
   .metric-strip {
     margin-top: 23px;
   }
-  .identity-orbit[data-renderer="fallback"] .orbit-label {
-    --radius: 93px;
-    width: 38px;
-    height: 38px;
-    font-size: 13px;
-  }
   .section-shell {
     padding: 27px 0 30px;
   }
@@ -1037,11 +998,6 @@ img {
   }
   .identity-orbit {
     width: min(100%, 320px);
-  }
-  .identity-orbit[data-renderer="fallback"] .orbit-label {
-    --radius: 80px;
-    width: 34px;
-    height: 34px;
   }
   .hero-grid {
     gap: 15px;
@@ -1160,4 +1116,10 @@ main,
   .experience-section .timeline h3 {
     font-size: 24px;
   }
+}
+
+/* Never show placeholder satellites before a successful 3D frame. */
+.identity-orbit:not([data-renderer="webgl"]) .orbit-canvas,
+.identity-orbit:not([data-renderer="webgl"]) .orbit-labels {
+  visibility: hidden;
 }

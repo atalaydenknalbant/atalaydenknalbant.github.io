@@ -188,6 +188,10 @@ import("./scripts/hero-orbit.mjs")
     createHeroOrbit(document.querySelector(".identity-orbit")),
   )
   .then(subscribe)
-  .catch((error) =>
-    console.warn("Using the accessible orbit fallback:", error.message),
-  );
+  .catch((error) => {
+    document.querySelector(".identity-orbit").dataset.renderer = "unavailable";
+    console.warn(
+      "3D orbit unavailable; keeping the static portrait:",
+      error.message,
+    );
+  });
