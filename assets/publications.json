@@ -1,0 +1,16 @@
+{
+  "papers": [
+    {
+      "citationId": "Mkpm2noAAAAJ:qjMakFHDy7sC",
+      "title": "Reinforcement Learning Approach to Instance Segmentation Using Double DQN",
+      "doi": "10.1109/ASYU67174.2025.11208352",
+      "curated": true
+    },
+    {
+      "citationId": "Mkpm2noAAAAJ:u5HHmVD_uO8C",
+      "title": "Advanced Computer Vision Techniques for Reliable Gender Determination in Budgerigars (Melopsittacus Undulatus)",
+      "doi": "10.1109/UBMK63289.2024.10773570",
+      "curated": true
+    }
+  ]
+}
