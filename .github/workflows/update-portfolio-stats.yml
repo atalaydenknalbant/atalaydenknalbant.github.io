@@ -74,7 +74,7 @@ jobs:
           cp scripts/hero-orbit.mjs scripts/orbit-math.mjs scripts/ocr-field.js _site/scripts/
 
       - name: Upload website
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
