@@ -1,7 +1,6 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const { fresh, isPublishedPaper, serpRequest, titleKey } = require('./publication-utils.cjs');
-const { checkScholar } = require('./check-scholar-publications.js');
 
 const cachePath = path.join(__dirname, "..", "assets", "scholar-stats.json");
 const authorId = "Mkpm2noAAAAJ";
@@ -53,18 +52,19 @@ async function collectArticles(apiKey, request = serpRequest) {
 
 const updateScholarCache = async () => {
   const currentCache = await readCurrentCache();
-  const check = await checkScholar();
-  if (process.env.GITHUB_OUTPUT) await fs.appendFile(process.env.GITHUB_OUTPUT, `increased=${check.increased}\n`);
-  if (process.env.GITHUB_STEP_SUMMARY) await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,
-    `Scholar free check: ${check.status}. Saved baseline: ${check.baseline}. Observed published count: ${check.count ?? 'unavailable'}. SerpApi permitted: ${check.increased}.\n`);
-  console.log(`Free Scholar check: ${check.status}; count ${check.count ?? 'unavailable'}; baseline ${check.baseline}.`);
-  if (!check.increased) {
-    console.log('No confirmed publication increase. No SerpApi requests made.');
-    return;
-  }
+  const report = async (cache, message) => {
+    const catalog = JSON.parse(await fs.readFile(path.join(__dirname, '..', 'assets', 'publications.json'), 'utf8'));
+    const pending = (cache?.papers || []).some(paper => !catalog.papers.some(known =>
+      (known.citationId === paper.citationId || titleKey(known.title) === titleKey(paper.title)) &&
+      (known.curated || known.detailsFetchedAt || known.status === 'excluded')));
+    if (process.env.GITHUB_OUTPUT) await fs.appendFile(process.env.GITHUB_OUTPUT, `increased=${pending}\n`);
+    if (process.env.GITHUB_STEP_SUMMARY) await fs.appendFile(process.env.GITHUB_STEP_SUMMARY,
+      `${message} Published papers: ${cache?.paperCount ?? 'unknown'}. New publication details pending: ${pending}.\n`);
+  };
 
   if (isFresh(currentCache) || fresh(currentCache?.lastAttemptAt)) {
     console.log("Scholar cache is newer than five days. No SerpApi request made.");
+    await report(currentCache, '5 day cache guard: 0 author API requests.');
     return;
   }
 
@@ -78,6 +78,7 @@ const updateScholarCache = async () => {
   catch {
     await fs.writeFile(cachePath, JSON.stringify({ ...currentCache, lastAttemptAt: new Date().toISOString() }, null, 2) + '\n');
     console.warn('SerpApi refresh failed. Existing papers retained; retry after 5 days.');
+    await report(currentCache, 'SerpApi refresh failed; previous cache retained.');
     return;
   }
 
@@ -90,6 +91,7 @@ const updateScholarCache = async () => {
 
   await fs.writeFile(cachePath, `${JSON.stringify(nextCache, null, 2)}\n`, "utf8");
   console.log(`Scholar cache updated with ${papers.length} papers.`);
+  await report(nextCache, 'Publication count checked through SerpApi.');
 };
 
 module.exports = { collectArticles, isFresh };

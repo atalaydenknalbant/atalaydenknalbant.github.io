@@ -8,9 +8,9 @@
 4. In Settings > Actions > General > Workflow permissions, allow read and write permissions if your repository policy requires it. Branch rules must permit the workflow to push main; otherwise the commit step will fail rather than bypass protection.
 5. In Actions, select Update Portfolio Stats and Run workflow on main.
 
-The workflow checks the public Scholar HTML page daily at 05:18 UTC without SerpApi. It excludes arXiv and other explicitly unpublished entries and compares the result with the saved completed publication baseline, initially 2. Only a confirmed increase permits SerpApi requests. If Scholar blocks the free check, paid requests are skipped and the action summary reports the check as unavailable. Runs may be delayed by GitHub.
+The workflow runs daily at 05:18 UTC, but checks Scholar through SerpApi only when the stored cache is at least 5 days old. The current profile fits in 1 author request, approximately 6 requests per 30 days. On intervening days the stored timestamp prevents author requests. Direct Scholar scraping is not used.
 
-After an increase, Scholar refreshes and failed detail requests retain a 5 day guard. Public GitHub and Hugging Face metrics also retain their 5 day refresh. Paper IDs, normalized titles, and DOI values prevent duplicate cards. Existing curated cards remain unchanged. No visitor spends API credits.
+The returned list excludes arXiv and other explicitly unpublished entries. New papers trigger individual detail requests; unchanged papers consume no detail requests. Failed requests retain a 5 day retry guard. Public GitHub and Hugging Face metrics also retain their 5 day refresh. Paper IDs, normalized titles, and DOI values prevent duplicate cards. Existing curated cards remain unchanged. No visitor spends API credits.
 
 New records get 1 SerpApi citation detail request, up to 10 new detail requests per run. Failed detail requests retry after 5 days. The author list is paginated, so profiles larger than 100 entries are supported. A malformed response does not replace the cache.
 
@@ -34,4 +34,4 @@ npm test
 node scripts/update-publications.js
 ```
 
-The existing curated catalog requires no API calls. For new records, set SERPAPI_KEY privately in the process environment. The scheduled workflow passes PUBLICATIONS_INCREASED=false unless the free check confirms an increase, disabling citation detail requests. Completed metadata can still retry a missing publisher image without SerpApi. There is no scheduled paid fallback when the free check fails.
+The existing curated catalog requires no citation detail calls. Set SERPAPI_KEY privately in the process environment for Scholar refreshes. The workflow enables citation requests only for new or pending papers found in the saved SerpApi list. Completed metadata can retry a missing publisher image without SerpApi.

@@ -6,10 +6,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const require = createRequire(import.meta.url);
 const { fresh, isPublishedPaper, publicUrl, publisherMetadata } = require('../scripts/publication-utils.cjs');
-const { collectArticles } = require('../scripts/update-scholar-cache.js');
+const { collectArticles, isFresh } = require('../scripts/update-scholar-cache.js');
 const { renderHtml, enrich, syncPublications, samePaper } = require('../scripts/update-publications.js');
 const sharp = require('sharp');
-const { parseScholarPage, checkScholar } = require('../scripts/check-scholar-publications.js');
 const now = '2026-09-07T10:00:00.000Z';
 const paper = { citationId: 'author:new', title: 'New segmentation study', publication: 'IEEE Conference 2026', year: '2026', link: 'https://scholar.google.com/citations?citation_for_view=author:new' };
 const template = '<main><!-- AUTO-WORK:START -->\n<!-- AUTO-WORK:END --><section><!-- AUTO-PUBLICATIONS:START -->\n<!-- AUTO-PUBLICATIONS:END --></section><p>Keep curated content</p></main>';
@@ -24,12 +23,11 @@ test('5 day freshness includes future clock protection', () => {
   assert.equal(fresh('2026-09-02T10:00:00Z', Date.parse(now)), false);
   assert.equal(fresh('2027-09-02T10:00:00Z', Date.parse(now)), false);
 });
-test('free Scholar HTML parsing filters preprints and recognizes pagination', () => {
-  const html = '<table><tbody id="gsc_a_b"><tr class="gsc_a_tr"><td><a class="gsc_a_at">Published study</a><div class="gs_gray">Author</div><div class="gs_gray">IEEE Conference</div></td></tr><tr class="gsc_a_tr"><td><a class="gsc_a_at">Preprint</a><div class="gs_gray">Author</div><div class="gs_gray">arXiv preprint</div></td></tr></tbody></table><button id="gsc_bpf_more" disabled>More</button>';
-  const result = parseScholarPage(html);
-  assert.equal(result.more, false);
-  assert.equal(result.papers.filter(isPublishedPaper).length, 1);
-  assert.throws(() => parseScholarPage('<h1>Access denied</h1>'), /unavailable/);
+test('SerpApi cache remains fresh for 5 days, but manual counts require refresh', () => {
+  const updatedAt = new Date().toISOString();
+  assert.equal(isFresh({ source: 'serpapi_google_scholar_author', updatedAt }), true);
+  assert.equal(isFresh({ source: 'manual', updatedAt }), false);
+  assert.equal(isFresh({ source: 'serpapi_google_scholar_author', updatedAt: new Date(Date.now() - 6 * 86400000).toISOString() }), false);
 });
 test('missing identifiers do not make unrelated papers duplicates', () => {
   assert.equal(samePaper({ title: 'Study A' }, { title: 'Study B' }), false);
@@ -90,17 +88,6 @@ async function fixture(fn) {
     await fn(directory);
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
-test('failed free Scholar check never permits SerpApi', async () => fixture(async directory => {
-  const result = await checkScholar({ directory, get: async () => { throw Error('403'); } });
-  assert.equal(result.increased, false);
-  assert.equal(result.status, 'unavailable');
-}));
-test('unchanged free publication count never permits SerpApi', async () => fixture(async directory => {
-  const html = '<table><tbody id="gsc_a_b"><tr class="gsc_a_tr"><td><a class="gsc_a_at">Published study</a><div class="gs_gray">Author</div><div class="gs_gray">IEEE Conference</div></td></tr></tbody></table><button id="gsc_bpf_more" disabled>More</button>';
-  const result = await checkScholar({ directory, get: async () => ({ bytes: Buffer.from(html) }) });
-  assert.equal(result.increased, false);
-  assert.equal(result.count, 1);
-}));
 test('new paper works even without count growth; repeated sync makes no requests or changes', async () => fixture(async directory => {
   let calls = 0;
   const options = { directory, now, request: async () => { calls++; return { citation: { title: paper.title, journal: paper.publication, description: 'Source abstract' } }; } };
