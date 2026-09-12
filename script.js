@@ -183,6 +183,37 @@ loadMetrics("assets/scholar-stats.json", [
   ["paperCount", "publishedPaperCount"],
 ]);
 
+import("./scripts/experience-math.mjs")
+  .then(({ completedExperienceMonths }) => {
+    const counter = document.getElementById("experienceYears");
+    let refreshTimer;
+    const updateExperience = () => {
+      clearTimeout(refreshTimer);
+      const periods = [
+        ...document.querySelectorAll("#experience .timeline article"),
+      ].map((article) => {
+        const dates = article.querySelectorAll("time[datetime]");
+        return { start: dates[0]?.dateTime, end: dates[1]?.dateTime };
+      });
+      const now = new Date();
+      counter.textContent = `${Math.floor(completedExperienceMonths(periods, now) / 12)}+`;
+      const midnight = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+      );
+      refreshTimer = setTimeout(updateExperience, midnight - now.getTime() + 50);
+    };
+    updateExperience();
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) updateExperience();
+    });
+    addEventListener("pageshow", updateExperience);
+  })
+  .catch((error) =>
+    console.warn("Experience counter unavailable:", error.message),
+  );
+
 import("./scripts/hero-orbit.mjs")
   .then(({ createHeroOrbit }) =>
     createHeroOrbit(document.querySelector(".identity-orbit")),
